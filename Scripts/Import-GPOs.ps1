@@ -1,5 +1,4 @@
-﻿﻿﻿﻿#
-# Import all GPOs into Active Directory Group Policy
+﻿﻿# Import all GPOs into Active Directory Group Policy
 # Script from https://www.microsoft.com/en-us/download/details.aspx?id=55319 with some edit 
 
 Import-Module activedirectory ; Import-Module grouppolicy
