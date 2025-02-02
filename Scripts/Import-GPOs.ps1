@@ -1,7 +1,10 @@
 ﻿﻿# Import all GPOs into Active Directory Group Policy
 # Script from https://www.microsoft.com/en-us/download/details.aspx?id=55319 with some edit 
 
+$scriptPath = Get-ScriptDirectory
 Import-Module activedirectory ; Import-Module grouppolicy
+import-module ($scriptPath+'.\gpomigration\gpomigration.psm1') -force
+
 $DomainDNSName=(Get-ADDomain).DNSRoot
 $DomainName=(Get-ADDomain).NetBIOSName
 
@@ -29,18 +32,14 @@ $GpoMap.Keys | ForEach-Object {
     Import-GPO -BackupId $guid -Path $gpoDir -TargetName "$GPOName" -CreateIfNeeded 
 }
 
-
-# Import all WMI filter files with .mof extension in the same script directory
-Get-ChildItem -Path $gpoDir -Filter *.mof | ForEach-Object {
+    # Import WMIFilters
+    Get-ChildItem -Path $wmiDir -Filter *.csv | ForEach-Object {
     (Get-Content -Path $_.FullName -Raw) -replace "contoso.com", $DomainDNSName | Set-Content -Path $_.FullName
     (Get-Content -Path $_.FullName -Raw) -replace "contoso", $DomainName | Set-Content -Path $_.FullName
 }
+    $DestServer = (Get-ADDomain | Select-Object PDCEmulator).PDCEmulator
+    Import-WMIFilter -DestServer $DestServer -Path $wmiDir
 
-Get-ChildItem -Path $wmiDir -Filter *.mof | ForEach-Object {
-    $mofFile = $_.FullName
-    Write-Host "Importing WMI filter: $mofFile" -ForegroundColor Cyan
-    mofcomp $mofFile
-}
 
 # Copy all folders recursively from the script's parent folder sysvol to C:\Windows\sysvol
 $sourceSysvol = [System.IO.Path]::Combine($parentDir, "sysvol")
