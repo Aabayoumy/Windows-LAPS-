@@ -1,9 +1,9 @@
-﻿﻿# Import all GPOs into Active Directory Group Policy
-# Script from https://www.microsoft.com/en-us/download/details.aspx?id=55319 with some edit 
+﻿﻿#Import all GPOs into Active Directory Group Policy
+#Script from https://www.microsoft.com/en-us/download/details.aspx?id=55319 with some edit 
 
-$scriptPath = Get-ScriptDirectory
+$rootDir = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
 Import-Module activedirectory ; Import-Module grouppolicy
-import-module ($scriptPath+'.\gpomigration\gpomigration.psm1') -force
+import-module ($rootDir+'.\gpomigration\gpomigration.psm1') -force
 
 $DomainDNSName=(Get-ADDomain).DNSRoot
 $DomainName=(Get-ADDomain).NetBIOSName
@@ -11,7 +11,6 @@ $DomainName=(Get-ADDomain).NetBIOSName
 
 $GpoMap = .\MapGuidsToGpoNames.ps1 ..\GPOs
 
-$rootDir = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Path)
 $parentDir = [System.IO.Path]::GetDirectoryName($rootDir)
 $gpoDir = [System.IO.Path]::Combine($parentDir, "GPOs")
 $wmiDir = [System.IO.Path]::Combine($parentDir, "wmi")
